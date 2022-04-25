@@ -20,6 +20,12 @@ fi
 
 # Discover the root LUKS device
 ROOT_LUKS=`grep -v '^#' /etc/fstab | col | egrep '[[:space:]]+\/[[:space:]]+' | cut -f1 -d ' '| sed 's/\/dev\/mapper\///'`
+case $ROOT_LUKS in
+UUID=*)
+  UUID=`echo $ROOT_LUKS | cut -f2 -d '='`
+  ROOT_LUKS=`blkid -U $UUID | sed 's/\/dev\/mapper\///'`
+  ;;
+esac
 crypttab_find_entry $ROOT_LUKS
 ROOT_DEV=$CRYPTTAB_SOURCE
 
