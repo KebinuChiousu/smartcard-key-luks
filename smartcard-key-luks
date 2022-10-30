@@ -19,13 +19,14 @@ if [ ! -e "$PUBKEY" ]; then
 fi
 
 # Discover the root LUKS device
-ROOT_LUKS=`grep -v '^#' /etc/fstab | col | egrep '[[:space:]]+\/[[:space:]]+' | cut -f1 -d ' '| sed 's/\/dev\/mapper\///'`
-case $ROOT_LUKS in
-UUID=*)
-  UUID=`echo $ROOT_LUKS | cut -f2 -d '='`
-  ROOT_LUKS=`blkid -U $UUID | sed 's/\/dev\/mapper\///'`
-  ;;
-esac
+#ROOT_LUKS=`grep -v '^#' /etc/fstab | col | egrep '[[:space:]]+\/[[:space:]]+' | cut -f1 -d ' '| sed 's/\/dev\/mapper\///'`
+#case $ROOT_LUKS in
+#UUID=*)
+#  UUID=`echo $ROOT_LUKS | cut -f2 -d '='`
+#  ROOT_LUKS=`blkid -U $UUID | sed 's/\/dev\/mapper\///'`
+#  ;;
+#esac
+ROOT_LUKS=cryptroot
 crypttab_find_entry $ROOT_LUKS
 ROOT_DEV=$CRYPTTAB_SOURCE
 
@@ -128,12 +129,12 @@ fi
 update-initramfs -u
 
 # patch grub config files
-perl -pi -e 's/^GRUB_CMDLINE_LINUX_DEFAULT=(.*) splash/GRUB_CMDLINE_LINUX_DEFAULT=\1 nosplash noresume loglevel=3/' /etc/default/grub
-echo "GRUB_CMDLINE_LINUX_RECOVERY=\"cryptopts=target=$ROOT_LUKS,source=$ROOT_DEV,luks\"" >> /etc/default/grub
+#perl -pi -e 's/^GRUB_CMDLINE_LINUX_DEFAULT=(.*) splash/GRUB_CMDLINE_LINUX_DEFAULT=\1 nosplash noresume loglevel=3/' /etc/default/grub
+#echo "GRUB_CMDLINE_LINUX_RECOVERY=\"cryptopts=target=$ROOT_LUKS,source=$ROOT_DEV,luks\"" >> /etc/default/grub
 
 # temporary script patches until they are upstreamed
-perl -pi -e 's/GRUB_CMDLINE_LINUX_RECOVERY=recovery/GRUB_CMDLINE_LINUX_RECOVERY=\"\$GRUB_CMDLINE_LINUX_RECOVERY recovery\"/' /etc/grub.d/10_linux
-perl -pi -e 's/GRUB_CMDLINE_LINUX_RECOVERY=single/GRUB_CMDLINE_LINUX_RECOVERY=\"\$GRUB_CMDLINE_LINUX_RECOVERY single\"/' /etc/grub.d/10_linux
-perl -pi -e 's/GRUB_CMDLINE_LINUX_DEFAULT \\/GRUB_CMDLINE_LINUX_DEFAULT \\\n  GRUB_CMDLINE_LINUX_RECOVERY \\/' /usr/sbin/grub-mkconfig
+#perl -pi -e 's/GRUB_CMDLINE_LINUX_RECOVERY=recovery/GRUB_CMDLINE_LINUX_RECOVERY=\"\$GRUB_CMDLINE_LINUX_RECOVERY recovery\"/' /etc/grub.d/10_linux
+#perl -pi -e 's/GRUB_CMDLINE_LINUX_RECOVERY=single/GRUB_CMDLINE_LINUX_RECOVERY=\"\$GRUB_CMDLINE_LINUX_RECOVERY single\"/' /etc/grub.d/10_linux
+#perl -pi -e 's/GRUB_CMDLINE_LINUX_DEFAULT \\/GRUB_CMDLINE_LINUX_DEFAULT \\\n  GRUB_CMDLINE_LINUX_RECOVERY \\/' /usr/sbin/grub-mkconfig
 
-update-grub
+#update-grub
